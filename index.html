@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Playbook Assistenza Tecnica & Consulenza Operativa</title>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<title>Playbook Assistenza Tecnica &amp; Consulenza Operativa</title>
 <style>
 :root{
   --bg:#f4f7fb; --card:#ffffff; --primary:#1f4e79; --primary-light:#2f6da7;
@@ -505,38 +506,38 @@ Per questo tipo di necessità abbiamo previsto il servizio di Consulenza Operati
 
 <footer>Playbook interno — Assistenza Tecnica &amp; Consulenza Operativa</footer>
 
-<script>
-const EDITOR_HASH='4fc06974a6304660797f623da036300786e599c317ce55dd2e0ec4b402c9f069';
+<script type="text/javascript">
+var EDITOR_HASH='4fc06974a6304660797f623da036300786e599c317ce55dd2e0ec4b402c9f069';
 
 function showSection(id,btn){
-  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.section').forEach(function(s){s.classList.remove('active');});
   document.getElementById(id).classList.add('active');
-  document.querySelectorAll('.menu-item').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.menu-item').forEach(function(b){b.classList.remove('active');});
   if(btn) btn.classList.add('active');
 }
 function copyText(id){
-  navigator.clipboard.writeText(document.getElementById(id).innerText).then(()=>alert('Script copiato negli appunti'));
+  navigator.clipboard.writeText(document.getElementById(id).innerText).then(function(){alert('Script copiato negli appunti');});
 }
 function toggleFaq(el){
-  const p=el.parentElement;
+  var p=el.parentElement;
   p.classList.toggle('open');
   el.querySelector('span:last-child').innerText=p.classList.contains('open')?'−':'+';
 }
 function expandFaqs(){
-  const btn=document.querySelector('.menu-item[onclick*="faq"]');
+  var btn=document.querySelector('.menu-item[onclick*="faq"]');
   showSection('faq',btn);
-  document.querySelectorAll('.faq-item').forEach(i=>{
+  document.querySelectorAll('.faq-item').forEach(function(i){
     i.classList.add('open');
-    const ic=i.querySelector('.faq-question span:last-child');
+    var ic=i.querySelector('.faq-question span:last-child');
     if(ic) ic.innerText='−';
   });
 }
 function collapseFaqs(){
-  const btn=document.querySelector('.menu-item[onclick*="faq"]');
+  var btn=document.querySelector('.menu-item[onclick*="faq"]');
   showSection('faq',btn);
-  document.querySelectorAll('.faq-item').forEach(i=>{
+  document.querySelectorAll('.faq-item').forEach(function(i){
     i.classList.remove('open');
-    const ic=i.querySelector('.faq-question span:last-child');
+    var ic=i.querySelector('.faq-question span:last-child');
     if(ic) ic.innerText='+';
   });
 }
@@ -544,33 +545,37 @@ function openEditorLogin(){
   document.getElementById('passwordInput').value='';
   document.getElementById('passwordError').style.display='none';
   document.getElementById('passwordModal').classList.add('open');
-  setTimeout(()=>document.getElementById('passwordInput').focus(),100);
+  setTimeout(function(){document.getElementById('passwordInput').focus();},100);
 }
 function closeEditorLogin(){
   document.getElementById('passwordModal').classList.remove('open');
 }
-async function checkPassword(){
-  const val=document.getElementById('passwordInput').value;
-  const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(val));
-  const hex=Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
-  if(hex===EDITOR_HASH){closeEditorLogin();openEditor();}
-  else{
-    document.getElementById('passwordError').style.display='block';
-    document.getElementById('passwordInput').value='';
-    document.getElementById('passwordInput').focus();
-  }
+function checkPassword(){
+  var val=document.getElementById('passwordInput').value;
+  var msgBuffer=new TextEncoder().encode(val);
+  crypto.subtle.digest('SHA-256',msgBuffer).then(function(hashBuffer){
+    var hashArray=Array.from(new Uint8Array(hashBuffer));
+    var hex=hashArray.map(function(b){return b.toString(16).padStart(2,'0');}).join('');
+    if(hex===EDITOR_HASH){closeEditorLogin();openEditor();}
+    else{
+      document.getElementById('passwordError').style.display='block';
+      document.getElementById('passwordInput').value='';
+      document.getElementById('passwordInput').focus();
+    }
+  });
 }
 function switchEditorTab(id,btn){
-  document.querySelectorAll('.editor-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.editor-panel').forEach(function(p){p.classList.remove('active');});
   document.getElementById(id).classList.add('active');
-  document.querySelectorAll('.editor-tab').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.editor-tab').forEach(function(b){b.classList.remove('active');});
   btn.classList.add('active');
 }
 function openEditor(){
-  ['script1','script2','script3','script4'].forEach(id=>{
-    document.getElementById('edit-'+id).value=document.getElementById(id).innerText.trim();
-  });
-  for(let i=0;i<4;i++){
+  var ids=['script1','script2','script3','script4'];
+  for(var i=0;i<ids.length;i++){
+    document.getElementById('edit-'+ids[i]).value=document.getElementById(ids[i]).innerText.trim();
+  }
+  for(var i=0;i<4;i++){
     document.getElementById('edit-faq-q'+i).value=document.getElementById('faq-q'+i).innerText.trim();
     document.getElementById('edit-faq-a'+i).value=document.getElementById('faq-a'+i).innerText.trim();
   }
@@ -580,7 +585,7 @@ function openEditor(){
   document.getElementById('edit-decision-consulting').value=listToText('decision-consulting');
   document.getElementById('edit-decision-highlight').value=document.getElementById('decision-highlight').innerText.trim();
   document.getElementById('edit-overview-formula').value=document.getElementById('overview-formula').innerText.trim();
-  const lnk=document.getElementById('info-booking-link');
+  var lnk=document.getElementById('info-booking-link');
   document.getElementById('edit-info-link').value=lnk?lnk.getAttribute('href'):'';
   document.getElementById('edit-info-rules').value=listToText('info-rules-list');
   document.getElementById('edit-pkg1-sessions').value=document.getElementById('pkg1-sessions').innerText.trim();
@@ -589,18 +594,24 @@ function openEditor(){
   document.getElementById('edit-pkg2-price').value=document.getElementById('pkg2-price').innerText.trim();
   switchEditorTab('etab-scripts',document.querySelector('.editor-tab'));
   showSection('editor',null);
-  document.querySelectorAll('.menu-item').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.menu-item').forEach(function(b){b.classList.remove('active');});
 }
 function exitEditor(){
   showSection('scripts',document.querySelector('.menu-item[onclick*="scripts"]'));
 }
 function liveUpdateText(id,val){document.getElementById(id).innerText=val;}
 function liveUpdateList(id,val){
-  document.getElementById(id).innerHTML=val.split('\n').filter(l=>l.trim()).map(l=>'<li>'+esc(l.trim())+'</li>').join('');
+  var lines=val.split('
+');
+  var html='';
+  for(var i=0;i<lines.length;i++){
+    if(lines[i].trim()) html+='<li>'+esc(lines[i].trim())+'</li>';
+  }
+  document.getElementById(id).innerHTML=html;
 }
 function liveUpdateInfoLink(val){
-  const lnk=document.getElementById('info-booking-link');
-  const lbl=document.getElementById('info-booking-label');
+  var lnk=document.getElementById('info-booking-link');
+  var lbl=document.getElementById('info-booking-label');
   if(lnk) lnk.href=val;
   if(lbl) lbl.innerText=val;
 }
@@ -618,13 +629,17 @@ function savePkg(n){
   showFb('fb-pkg'+n);
 }
 function showFb(id){
-  const fb=document.getElementById(id);
+  var fb=document.getElementById(id);
   if(!fb) return;
   fb.classList.add('show');
-  setTimeout(()=>fb.classList.remove('show'),2000);
+  setTimeout(function(){fb.classList.remove('show');},2000);
 }
 function listToText(id){
-  return Array.from(document.querySelectorAll('#'+id+' li')).map(li=>li.innerText.trim()).join('\n');
+  var items=document.querySelectorAll('#'+id+' li');
+  var result=[];
+  for(var i=0;i<items.length;i++) result.push(items[i].innerText.trim());
+  return result.join('
+');
 }
 function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 </script>
