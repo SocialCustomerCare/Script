@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Interruzione di servizio</title>
+<style>
+:root{
+  --bg:#f4f7fb;--card:#fff;--primary:#1f4e79;--primary-light:#2f6da7;
+  --secondary:#edf4fb;--text:#1e293b;--muted:#64748b;
+  --border:#dbe4ee;--shadow:0 8px 24px rgba(0,0,0,0.08);--radius:16px;
+}
+*{box-sizing:border-box;}
+body{margin:0;font-family:Inter,Segoe UI,Arial,sans-serif;background:var(--bg);color:var(--text);line-height:1.5;}
+header{background:linear-gradient(135deg,#1f4e79,#173a59);color:white;padding:40px 24px;}
+header h1{margin:0;font-size:2rem;}
+header p{margin-top:10px;opacity:.9;max-width:900px;}
+.container{max-width:1400px;margin:auto;padding:24px;}
+.top-actions{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:24px;}
+button{border:none;cursor:pointer;transition:.2s ease;font-weight:600;}
+.btn{background:var(--primary);color:white;padding:12px 18px;border-radius:12px;}
+.btn:hover{background:var(--primary-light);}
+.btn-editor{background:linear-gradient(135deg,#7c3aed,#5b21b6);}
+.btn-editor:hover{background:linear-gradient(135deg,#6d28d9,#4c1d95);}
+.tags-row{margin-bottom:24px;}
+.layout{display:grid;grid-template-columns:320px 1fr;gap:24px;}
+.sidebar,.content-card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);}
+.sidebar{padding:20px;position:sticky;top:20px;height:fit-content;}
+.sidebar h3{margin-top:0;color:var(--primary);}
+.menu-item{width:100%;text-align:left;padding:12px 14px;margin-bottom:10px;border-radius:12px;background:var(--secondary);color:var(--text);}
+.menu-item:hover,.menu-item.active{background:var(--primary);color:white;}
+.content-card{padding:28px;}
+.section{display:none;}
+.section.active{display:block;}
+h2{margin-top:0;color:var(--primary);}
+.script-box,.tip-box{border:1px solid var(--border);border-radius:14px;padding:18px;margin-bottom:18px;background:#fff;}
+.script-title{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px;}
+.script-title strong{font-size:1.05rem;}
+.badge{background:var(--secondary);color:var(--primary);padding:6px 10px;border-radius:999px;font-size:.8rem;font-weight:700;}
+.script-content{background:#f8fafc;border-left:5px solid var(--primary);padding:16px;border-radius:10px;white-space:pre-line;}
+.script-content.warn{border-left-color:#b45309;background:#fffbeb;}
+.copy-btn{background:var(--primary);color:white;padding:8px 12px;border-radius:10px;font-size:.9rem;}
+.tag{display:inline-block;padding:6px 10px;border-radius:999px;margin:4px;font-size:.8rem;font-weight:600;}
+.tag.red{background:#fee2e2;color:#991b1b;}
+.tag.orange{background:#ffedd5;color:#9a3412;}
+.tag.blue{background:#dbeafe;color:#1e40af;}
+.tag.green{background:#dcfce7;color:#166534;}
+.highlight{background:#fff7ed;border:1px solid #fdba74;color:#9a3412;padding:18px 20px;border-radius:12px;margin-top:20px;font-weight:600;}
+.tip-box h3{margin:0 0 12px;color:var(--primary);font-size:1rem;}
+.tip-box ul{margin:0;padding-left:18px;line-height:1.95;}
+.tip-box li strong{color:var(--text);}
+.tip-box a{color:var(--primary);font-weight:700;text-decoration:none;}
+.tip-box a:hover{text-decoration:underline;}
+.info-block{border:1px solid var(--border);border-radius:14px;padding:20px 22px;margin-bottom:18px;background:#fff;}
+.info-block h3{margin:0 0 12px;color:var(--primary);font-size:1rem;}
+.info-link{display:inline-flex;align-items:center;gap:6px;background:var(--secondary);color:var(--primary);padding:10px 16px;border-radius:10px;font-weight:700;text-decoration:none;font-size:.92rem;}
+footer{text-align:center;padding:40px 20px;color:var(--muted);font-size:.9rem;}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:1000;align-items:center;justify-content:center;}
+.modal-overlay.open{display:flex;}
+.modal-box{background:#fff;border-radius:20px;padding:36px;width:400px;max-width:95vw;box-shadow:0 20px 60px rgba(0,0,0,0.3);text-align:center;}
+.modal-box h3{margin:0 0 8px;color:var(--primary);}
+.modal-box p{color:var(--muted);margin-bottom:20px;font-size:.9rem;}
+.modal-box input[type=password]{width:100%;padding:12px 16px;border:2px solid var(--border);border-radius:12px;font-size:1rem;outline:none;}
+.modal-error{color:#b91c1c;font-size:.85rem;margin-top:8px;display:none;}
+.modal-actions{display:flex;gap:12px;margin-top:20px;}
+.btn-cancel{background:#e2e8f0;color:var(--text);}
+.editor-topbar{display:flex;align-items:center;gap:12px;margin-bottom:24px;flex-wrap:wrap;}
+.btn-exit-editor{background:#fee2e2;color:#991b1b;padding:9px 16px;border-radius:10px;font-size:.9rem;}
+.editor-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px;border-bottom:2px solid var(--border);padding-bottom:12px;}
+.editor-tab{background:var(--secondary);color:var(--text);padding:9px 16px;border-radius:10px 10px 0 0;font-size:.88rem;}
+.editor-tab.active{background:var(--primary);color:white;}
+.editor-panel{display:none;}
+.editor-panel.active{display:block;}
+.editor-block{border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:20px;background:#fff;}
+.editor-block-title{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.editor-block-title strong{color:var(--primary);font-size:1rem;}
+.editor-badge{display:inline-block;background:var(--secondary);color:var(--primary);padding:4px 10px;border-radius:999px;font-size:.78rem;font-weight:700;}
+#editor textarea{width:100%;min-height:110px;border:2px solid var(--border);border-radius:10px;padding:14px;font-family:inherit;font-size:.93rem;line-height:1.6;resize:vertical;outline:none;}
+.editor-save-row{display:flex;align-items:center;gap:14px;margin-top:10px;}
+.btn-save{background:linear-gradient(135deg,#0f766e,#115e59);color:white;padding:9px 18px;border-radius:10px;font-size:.9rem;}
+.save-feedback{color:#0f766e;font-size:.88rem;font-weight:600;opacity:0;transition:opacity .3s;}
+.save-feedback.show{opacity:1;}
+.editor-note{background:var(--secondary);border-radius:10px;padding:12px 16px;color:var(--muted);font-size:.85rem;margin-bottom:16px;}
+@media(max-width:980px){
+  .layout{grid-template-columns:1fr;}
+  .sidebar{position:relative;top:auto;}
+}
+@media print{
+  header{background:#1f4e79 !important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  .top-actions,.sidebar,.copy-btn,.btn-editor{display:none;}
+  .layout{grid-template-columns:1fr;}
+  .section{display:block !important;page-break-inside:avoid;}
+  .section:not(:first-of-type){margin-top:24px;}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Interruzione di servizio</h1>
+  <p>Script operatore per gestire la comunicazione con il cliente in caso di disservizio grave dovuto a causa esterna con tempi di risoluzione non ancora certi.</p>
+</header>
+
+<div class="container">
+  <div class="top-actions">
+    <button class="btn" id="btn-open-script">Vai allo script</button>
+    <button class="btn" id="btn-open-rules">Vai alle regole</button>
+    <button class="btn btn-editor" id="btn-editor">Editor</button>
+  </div>
+
+  <div class="tags-row">
+    <span class="tag red">Disservizio grave</span>
+    <span class="tag orange">Causa esterna</span>
+    <span class="tag blue">Tempi ignoti</span>
+  </div>
+
+  <div id="passwordModal" class="modal-overlay">
+    <div class="modal-box">
+      <div style="font-size:2rem;margin-bottom:12px;">&#128274;</div>
+      <h3>Accesso Editor</h3>
+      <p>Inserisci la password per modificare i contenuti.</p>
+      <input type="password" id="passwordInput" placeholder="Password"/>
+      <div id="passwordError" class="modal-error">Password errata. Riprova.</div>
+      <div class="modal-actions">
+        <button class="btn btn-cancel" style="flex:1;" id="btn-modal-cancel">Annulla</button>
+        <button class="btn" style="flex:1;" id="btn-modal-ok">Accedi</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <h3>Menu rapido</h3>
+      <button class="menu-item active" data-section="script">Script Operatore</button>
+      <button class="menu-item" data-section="objection">Gestione Obiezione</button>
+      <button class="menu-item" data-section="rules">Regole Chiave</button>
+    </aside>
+
+    <main class="content-card">
+
+      <section id="script" class="section active">
+        <h2>Script Operatore</h2>
+
+        <div class="script-box">
+          <div class="script-title">
+            <div><strong>1 - Accoglienza</strong> <span class="badge">Apertura</span></div>
+            <button class="copy-btn" data-copy="s1">Copia</button>
+          </div>
+          <div class="script-content" id="s1">Siamo a conoscenza del problema che sta rendendo il servizio temporaneamente non utilizzabile. Lo stiamo gestendo con la massima priorita. In questo momento, anche noi internamente siamo fermi nelle attivita sulle piattaforme. Per questo, comprendo perfettamente il disagio che sta riscontrando.</div>
+        </div>
+
+        <div class="script-box">
+          <div class="script-title">
+            <div><strong>2 - Chiarimento sulla causa</strong> <span class="badge">Spiegazione</span></div>
+            <button class="copy-btn" data-copy="s2">Copia</button>
+          </div>
+          <div class="script-content" id="s2">Il problema attuale non dipende direttamente dai nostri sistemi, ma da un infrastruttura esterna con la quale i nostri tecnici si stanno coordinando.</div>
+        </div>
+
+        <div class="script-box">
+          <div class="script-title">
+            <div><strong>3 - Stato dell intervento</strong> <span class="badge">Aggiornamento</span></div>
+            <button class="copy-btn" data-copy="s3">Copia</button>
+          </div>
+          <div class="script-content" id="s3">I controlli e le attivita di ripristino sono gia in corso e la situazione e costantemente monitorata, oltre ad avere l assoluta priorita d intervento; tuttavia, al momento non abbiamo ancora una tempistica certa per la risoluzione.</div>
+        </div>
+
+        <div class="script-box">
+          <div class="script-title">
+            <div><strong>4 - Suggerimento</strong> <span class="badge">Chiusura</span></div>
+            <button class="copy-btn" data-copy="s4">Copia</button>
+          </div>
+          <div class="script-content" id="s4">In questa fase non e necessario effettuare ulteriori azioni: il servizio tornera operativo automaticamente una volta risolto il problema.</div>
+        </div>
+
+      </section>
+
+      <section id="objection" class="section">
+        <h2>Gestione Obiezione</h2>
+
+        <div class="script-box">
+          <div class="script-title">
+            <div><strong>Il cliente vuole parlare con un responsabile</strong> <span class="badge">Escalation</span></div>
+            <button class="copy-btn" data-copy="s5">Copia</button>
+          </div>
+          <div class="script-content warn" id="s5">Comprendo il desiderio di parlare con un responsabile. In questa specifica situazione, le indicazioni e le informazioni che posso darle sono le stesse a disposizione dei responsabili, quindi posso seguirla direttamente senza differenze operative. In questo istante i responsabili, assieme al reparto tecnico, si stanno coordinando proprio per risolvere l anomalia nel piu breve tempo possibile.</div>
+        </div>
+
+      </section>
+
+      <section id="rules" class="section">
+        <h2>Regole Chiave</h2>
+
+        <div class="tip-box">
+          <h3>Da seguire sempre</h3>
+          <ul id="rules-list">
+            <li>Ripetere i concetti anche se il cliente insiste. Cambiare la forma ma non il contenuto e soprattutto <strong>i modi</strong>.</li>
+            <li>Usare sempre <strong>capisco / comprendo</strong>, anche se il cliente utilizza toni non adeguati.</li>
+            <li>Non dare dettagli tecnici non confermati.</li>
+            <li>Se il cliente chiede con chi sta parlando, siamo autorizzati a fornire solo il <strong>nome</strong> e l <strong>identificativo</strong> (School Pass).</li>
+            <li>Se il cliente vuole aprire un reclamo per iscritto, lasciare l indirizzo: <a href="mailto:assistenza@spaggiari.eu">assistenza@spaggiari.eu</a>.</li>
+          </ul>
+        </div>
+
+        <div class="highlight">Formula chiave da ricordare:<br><br>
+          <span id="rules-formula">Tono fermo ma empatico. Stesso contenuto in forme diverse. Mai promesse su tempi non confermati.</span>
+        </div>
+      </section>
+
+      <section id="editor" class="section">
+        <div class="editor-topbar">
+          <button class="btn-exit-editor" id="btn-exit-editor">Esci dall editor</button>
+          <span style="color:var(--muted);font-size:.88rem;">Modalita editor attiva.</span>
+        </div>
+        <div class="editor-tabs">
+          <button class="editor-tab active" data-tab="etab-script">Script Operatore</button>
+          <button class="editor-tab" data-tab="etab-objection">Gestione Obiezione</button>
+          <button class="editor-tab" data-tab="etab-rules">Regole Chiave</button>
+        </div>
+
+        <div id="etab-script" class="editor-panel active">
+          <div class="editor-block">
+            <div class="editor-block-title"><strong>1 - Accoglienza</strong> <span class="editor-badge">Apertura</span></div>
+            <textarea id="edit-s1"></textarea>
+            <div class="editor-save-row"><button class="btn-save" data-save="s1">Salva</button><span class="save-feedback" id="fb-s1">Salvato</span></div>
+          </div>
+          <div class="editor-block">
+            <div class="editor-block-title"><strong>2 - Chiarimento sulla causa</strong> <span class="editor-badge">Spiegazione</span></div>
+            <textarea id="edit-s2"></textarea>
+            <div class="editor-save-row"><button class="btn-save" data-save="s2">Salva</button><span class="save-feedback" id="fb-s2">Salvato</span></div>
+          </div>
+          <div class="editor-block">
+            <div class="editor-block-title"><strong>3 - Stato dell intervento</strong> <span class="editor-badge">Aggiornamento</span></div>
+            <textarea id="edit-s3"></textarea>
+            <div class="editor-save-row"><button class="btn-save" data-save="s3">Salva</button><span class="save-feedback" id="fb-s3">Salvato</span></div>
+          </div>
+          <div class="editor-block">
+            <div class="editor-block-title"><strong>4 - Suggerimento</strong> <span class="editor-badge">Chiusura</span></div>
+            <textarea id="edit-s4"></textarea>
+            <div class="editor-save-row"><button class="btn-save" data-save="s4">Salva</button><span class="save-feedback" id="fb-s4">Salvato</span></div>
+          </div>
+        </div>
+
+        <div id="etab-objection" class="editor-panel">
+          <div class="editor-block">
+            <div class="editor-block-title"><strong>Il cliente vuole parlare con un responsabile</strong> <span class="editor-badge">Escalation</span></div>
+            <textarea id="edit-s5"></textarea>
+            <div class="editor-save-row"><button class="btn-save" data-save="s5">Salva</button><span class="save-feedback" id="fb-s5">Salvato</span></div>
+          </div>
+        </div>
+
+        <div id="etab-rules" class="editor-panel">
+          <div class="editor-note">Inserisci ogni regola su una riga separata. Puoi usare HTML inline come &lt;strong&gt; o &lt;a href&gt;.</div>
+          <div class="editor-block">
+            <div class="editor-block-title"><strong>Regole chiave</strong></div>
+            <textarea id="edit-rules-list" style="min-height:180px;"></textarea>
+            <div class="editor-save-row"><button class="btn-save" data-save-list="rules-list" data-input="edit-rules-list">Salva</button><span class="save-feedback" id="fb-rules-list">Salvato</span></div>
+          </div>
+          <div class="editor-block">
+            <div class="editor-block-title"><strong>Formula chiave</strong></div>
+            <textarea id="edit-rules-formula" rows="3"></textarea>
+            <div class="editor-save-row"><button class="btn-save" data-save="rules-formula" data-input="edit-rules-formula">Salva</button><span class="save-feedback" id="fb-rules-formula">Salvato</span></div>
+          </div>
+        </div>
+
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<footer>Script operatore - Interruzione di servizio</footer>
+
+<script>
+var EDITOR_HASH = '4fc06974a6304660797f623da036300786e599c317ce55dd2e0ec4b402c9f069';
+
+function showSection(id) {
+  var sections = document.querySelectorAll('.section');
+  for (var i = 0; i < sections.length; i++) sections[i].classList.remove('active');
+  document.getElementById(id).classList.add('active');
+  var items = document.querySelectorAll('.menu-item');
+  for (var i = 0; i < items.length; i++) {
+    if (items[i].getAttribute('data-section') === id) items[i].classList.add('active');
+    else items[i].classList.remove('active');
+  }
+}
+
+function switchEditorTab(tabId) {
+  var panels = document.querySelectorAll('.editor-panel');
+  for (var i = 0; i < panels.length; i++) panels[i].classList.remove('active');
+  document.getElementById(tabId).classList.add('active');
+  var tabs = document.querySelectorAll('.editor-tab');
+  for (var i = 0; i < tabs.length; i++) {
+    if (tabs[i].getAttribute('data-tab') === tabId) tabs[i].classList.add('active');
+    else tabs[i].classList.remove('active');
+  }
+}
+
+function updateList(targetId, text) {
+  var lines = text.split('\n');
+  var html = '';
+  for (var i = 0; i < lines.length; i++) {
+    var line = lines[i].replace(/^\s+|\s+$/g, '');
+    if (line) html += '<li>' + line + '</li>';
+  }
+  document.getElementById(targetId).innerHTML = html;
+}
+
+function listToText(id) {
+  var items = document.querySelectorAll('#' + id + ' li');
+  var lines = [];
+  for (var i = 0; i < items.length; i++) lines.push(items[i].innerHTML.replace(/^\s+|\s+$/g, ''));
+  return lines.join('\n');
+}
+
+function showFeedback(id) {
+  var el = document.getElementById(id);
+  if (!el) return;
+  el.classList.add('show');
+  setTimeout(function() { el.classList.remove('show'); }, 2000);
+}
+
+function openEditor() {
+  var ids = ['s1','s2','s3','s4','s5'];
+  for (var i = 0; i < ids.length; i++) {
+    var el = document.getElementById(ids[i]);
+    var inp = document.getElementById('edit-' + ids[i]);
+    if (el && inp) inp.value = el.innerText.replace(/^\s+|\s+$/g, '');
+  }
+  document.getElementById('edit-rules-list').value = listToText('rules-list');
+  var rf = document.getElementById('rules-formula');
+  if (rf) document.getElementById('edit-rules-formula').value = rf.innerText.replace(/^\s+|\s+$/g, '');
+  switchEditorTab('etab-script');
+  showSection('editor');
+}
+
+window.addEventListener('DOMContentLoaded', function() {
+
+  // Menu navigation
+  var menuItems = document.querySelectorAll('.menu-item');
+  for (var i = 0; i < menuItems.length; i++) {
+    menuItems[i].addEventListener('click', function() {
+      showSection(this.getAttribute('data-section'));
+    });
+  }
+
+  // Top action shortcuts
+  document.getElementById('btn-open-script').addEventListener('click', function() {
+    showSection('script');
+  });
+  document.getElementById('btn-open-rules').addEventListener('click', function() {
+    showSection('rules');
+  });
+
+  // Copy buttons
+  var copyBtns = document.querySelectorAll('[data-copy]');
+  for (var i = 0; i < copyBtns.length; i++) {
+    copyBtns[i].addEventListener('click', function() {
+      var id = this.getAttribute('data-copy');
+      var el = document.getElementById(id);
+      if (el && navigator.clipboard) {
+        navigator.clipboard.writeText(el.innerText);
+        var original = this.innerText;
+        var self = this;
+        self.innerText = 'Copiato';
+        setTimeout(function(){ self.innerText = original; }, 1200);
+      }
+    });
+  }
+
+  // Editor button
+  document.getElementById('btn-editor').addEventListener('click', function() {
+    document.getElementById('passwordInput').value = '';
+    document.getElementById('passwordError').style.display = 'none';
+    document.getElementById('passwordModal').classList.add('open');
+    setTimeout(function() { document.getElementById('passwordInput').focus(); }, 100);
+  });
+
+  // Modal cancel
+  document.getElementById('btn-modal-cancel').addEventListener('click', function() {
+    document.getElementById('passwordModal').classList.remove('open');
+  });
+
+  // Modal OK / password check
+  function doCheckPassword() {
+    var val = document.getElementById('passwordInput').value;
+    var encoded = new TextEncoder().encode(val);
+    crypto.subtle.digest('SHA-256', encoded).then(function(buf) {
+      var arr = Array.from(new Uint8Array(buf));
+      var hex = arr.map(function(b) { return b.toString(16).padStart(2, '0'); }).join('');
+      if (hex === EDITOR_HASH) {
+        document.getElementById('passwordModal').classList.remove('open');
+        openEditor();
+      } else {
+        document.getElementById('passwordError').style.display = 'block';
+        document.getElementById('passwordInput').value = '';
+        document.getElementById('passwordInput').focus();
+      }
+    });
+  }
+  document.getElementById('btn-modal-ok').addEventListener('click', doCheckPassword);
+  document.getElementById('passwordInput').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') doCheckPassword();
+  });
+
+  // Exit editor
+  document.getElementById('btn-exit-editor').addEventListener('click', function() {
+    showSection('script');
+  });
+
+  // Editor tabs
+  var editorTabs = document.querySelectorAll('.editor-tab');
+  for (var i = 0; i < editorTabs.length; i++) {
+    editorTabs[i].addEventListener('click', function() {
+      switchEditorTab(this.getAttribute('data-tab'));
+    });
+  }
+
+  // Save script buttons
+  var saveBtns = document.querySelectorAll('[data-save]');
+  for (var i = 0; i < saveBtns.length; i++) {
+    saveBtns[i].addEventListener('click', function() {
+      var tid = this.getAttribute('data-save');
+      var iid = this.getAttribute('data-input') || ('edit-' + tid);
+      var inp = document.getElementById(iid);
+      var tgt = document.getElementById(tid);
+      if (inp && tgt) { tgt.innerText = inp.value; showFeedback('fb-' + tid); }
+    });
+  }
+
+  // Save list buttons
+  var saveListBtns = document.querySelectorAll('[data-save-list]');
+  for (var i = 0; i < saveListBtns.length; i++) {
+    saveListBtns[i].addEventListener('click', function() {
+      var tid = this.getAttribute('data-save-list');
+      var iid = this.getAttribute('data-input');
+      var inp = document.getElementById(iid);
+      if (inp) { updateList(tid, inp.value); showFeedback('fb-' + tid); }
+    });
+  }
+
+});
+</script>
+</body>
+</html>
