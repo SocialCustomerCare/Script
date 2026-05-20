@@ -8,14 +8,14 @@
    COME AGGIUNGERE UN NUOVO SCRIPT:
      1. Salva il nuovo file .html dentro P:\Tognon\HTML\Pagine_scripts\
      2. Aggiungi una voce qui sotto con un id UNIVOCO
-        (lowercase-kebab-case, niente spazi né caratteri speciali)
-     3. Salva. Il contenitore lo mostrerà automaticamente al prossimo reload.
+        (lowercase-kebab-case, niente spazi ne caratteri speciali)
+     3. Salva. Il contenitore lo mostrera automaticamente al prossimo reload.
 
    CAMPI:
-     id          (string)   identificativo univoco — usato anche nell'URL (#id)
+     id          (string)   identificativo univoco - usato anche nell'URL (#id)
      name        (string)   nome visualizzato nel menu e nelle card
      description (string)   breve descrizione (opzionale, 1 riga consigliata)
-     category    (string)   raggruppamento nel menu laterale (es. "Consulenza")
+     category    (string)   raggruppamento nel menu laterale
      path        (string)   percorso relativo a SCRIPT.html
                             (es. "Pagine_scripts/nome_file.html")
      tags        (string[]) parole chiave per la ricerca (opzionale)
@@ -30,7 +30,16 @@ window.SCRIPTS_MANIFEST = [
     category: "Consulenza",
     path: "Pagine_scripts/playbook_consulenza_operativa.html",
     tags: ["playbook", "consulenza", "operativa", "procedure"],
-    icon: "📘"
+    icon: "\u{1F4D8}"
+  },
+  {
+    id: "interruzione-di-servizio",
+    name: "Interruzione di servizio",
+    description: "Script operatore per disservizio grave, causa esterna, tempi ignoti",
+    category: "Disservizi",
+    path: "Pagine_scripts/interruzione_di_servizio.html",
+    tags: ["disservizio", "interruzione", "down", "guasto", "causa esterna", "incident"],
+    icon: "⚠️"
   }
 
   // ---------------------------------------------------------------------------
@@ -43,6 +52,6 @@ window.SCRIPTS_MANIFEST = [
   //   category: "Categoria",
   //   path: "Pagine_scripts/nome_file.html",
   //   tags: ["parola1", "parola2"],
-  //   icon: "🔧"
+  //   icon: "\u{1F527}"
   // }
 ];
